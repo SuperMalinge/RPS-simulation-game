@@ -114,6 +114,23 @@ pygame.display.set_caption("Rock Paper Scissors Simulation")
 clock = pygame.time.Clock()
 running = True
 
+class Tower:
+    def __init__(self, x, y, tribe):
+        self.x = x
+        self.y = y
+        self.tribe = tribe
+
+    def draw(self):
+        if self.tribe == 'rock':
+            screen.blit(rock_tower_icon, (self.x - ICON_WIDTH//2, self.y - ICON_HEIGHT//2))
+        elif self.tribe == 'paper':
+            screen.blit(paper_tower_icon, (self.x - ICON_WIDTH//2, self.y - ICON_HEIGHT//2))
+        else:
+            screen.blit(scissors_tower_icon, (self.x - ICON_WIDTH//2, self.y - ICON_HEIGHT//2))
+
+towers = []
+
+
 # Game loop
 while running:
     screen.blit(background_image, (0, 0))
@@ -123,6 +140,17 @@ while running:
     paper_count = sum(1 for entity in entities if entity.tribe == 'paper')
     scissors_count = sum(1 for entity in entities if entity.tribe == 'scissors')
 
+# In the game loop:
+for entity in entities:
+    same_tribe_entities = [e for e in entities if e.tribe == entity.tribe and e.distance_to(entity) < TOWER_BUILD_RADIUS]
+    if len(same_tribe_entities) >= 3:
+        towers.append(Tower(entity.x, entity.y, entity.tribe))
+        entities = [e for e in entities if e not in same_tribe_entities[:3]]
+
+for tower in towers:
+    tower.draw()
+
+    
     winner_text = None
     if rock_count == len(entities):
         winner_text = "Rock"
